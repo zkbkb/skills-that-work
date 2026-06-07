@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "repository": "https://github.com/zkbkb/skills-that-work",
+  "description": "A curated, source-tracked bundle of Agent Skills that have proven useful in repeated workflows.",
+  "sources": [
+    {
+      "source_id": "thinkbench-skills",
+      "repository": "https://github.com/zkbkb/thinkbench-skills.git",
+      "homepage": "https://github.com/zkbkb/thinkbench-skills",
+      "default_ref": "main",
+      "pinned_commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447",
+      "licence": "MIT",
+      "local_root": "skills/thinkbench-skills",
+      "skills": [
+        {
+          "name": "context-handoff",
+          "upstream_path": "skills/context-handoff",
+          "local_path": "skills/thinkbench-skills/context-handoff",
+          "ref": "main",
+          "pinned_commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447",
+          "imported_at": "2026-06-07",
+          "licence": "MIT",
+          "local_modifications": false,
+          "sync_policy": "manual-review",
+          "categories": [
+            "conversation",
+            "workflow",
+            "productivity"
+          ],
+          "tags": [
+            "context",
+            "handoff",
+            "continuation",
+            "session"
+          ]
+        },
+        {
+          "name": "doc-diff",
+          "upstream_path": "skills/doc-diff",
+          "local_path": "skills/thinkbench-skills/doc-diff",
+          "ref": "main",
+          "pinned_commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447",
+          "imported_at": "2026-06-07",
+          "licence": "MIT",
+          "local_modifications": false,
+          "sync_policy": "manual-review",
+          "categories": [
+            "documents",
+            "comparison",
+            "review"
+          ],
+          "tags": [
+            "diff",
+            "documents",
+            "comparison",
+            "review"
+          ]
+        },
+        {
+          "name": "doc-merge",
+          "upstream_path": "skills/doc-merge",
+          "local_path": "skills/thinkbench-skills/doc-merge",
+          "ref": "main",
+          "pinned_commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447",
+          "imported_at": "2026-06-07",
+          "licence": "MIT",
+          "local_modifications": false,
+          "sync_policy": "manual-review",
+          "categories": [
+            "documents",
+            "merge",
+            "review"
+          ],
+          "tags": [
+            "merge",
+            "documents",
+            "alignment",
+            "resolution"
+          ]
+        },
+        {
+          "name": "qi-gua",
+          "upstream_path": "skills/qi-gua",
+          "local_path": "skills/thinkbench-skills/qi-gua",
+          "ref": "main",
+          "pinned_commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447",
+          "imported_at": "2026-06-07",
+          "licence": "MIT",
+          "local_modifications": false,
+          "sync_policy": "manual-review",
+          "categories": [
+            "divination",
+            "decision-support",
+            "cultural-methods"
+          ],
+          "tags": [
+            "qi-gua",
+            "meihua-yishu",
+            "liuyao",
+            "divination"
+          ]
+        },
+        {
+          "name": "sutong-tutorial",
+          "upstream_path": "skills/sutong-tutorial",
+          "local_path": "skills/thinkbench-skills/sutong-tutorial",
+          "ref": "main",
+          "pinned_commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447",
+          "imported_at": "2026-06-07",
+          "licence": "MIT",
+          "local_modifications": false,
+          "sync_policy": "manual-review",
+          "categories": [
+            "learning",
+            "education",
+            "writing"
+          ],
+          "tags": [
+            "tutorial",
+            "speed-through",
+            "learning",
+            "first-principles"
+          ]
+        },
+        {
+          "name": "transcript",
+          "upstream_path": "skills/transcript",
+          "local_path": "skills/thinkbench-skills/transcript",
+          "ref": "main",
+          "pinned_commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447",
+          "imported_at": "2026-06-07",
+          "licence": "MIT",
+          "local_modifications": false,
+          "sync_policy": "manual-review",
+          "categories": [
+            "conversation",
+            "export",
+            "documentation"
+          ],
+          "tags": [
+            "transcript",
+            "archive",
+            "conversation",
+            "markdown"
+          ]
+        }
+      ]
+    }
+  ]
+}

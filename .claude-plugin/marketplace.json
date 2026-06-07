@@ -1,0 +1,33 @@
+{
+  "name": "skills-that-work",
+  "owner": {
+    "name": "zkbkb"
+  },
+  "metadata": {
+    "description": "A curated bundle of time-tested Agent Skills synced from upstream repositories.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "skills-that-work-core",
+      "description": "Useful time-tested skills grouped by upstream repository and reviewed for repeated use.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/thinkbench-skills/context-handoff",
+        "./skills/thinkbench-skills/doc-diff",
+        "./skills/thinkbench-skills/doc-merge",
+        "./skills/thinkbench-skills/qi-gua",
+        "./skills/thinkbench-skills/sutong-tutorial",
+        "./skills/thinkbench-skills/transcript"
+      ],
+      "category": "productivity",
+      "tags": [
+        "agent-skills",
+        "curated",
+        "workflow",
+        "source-tracked"
+      ]
+    }
+  ]
+}

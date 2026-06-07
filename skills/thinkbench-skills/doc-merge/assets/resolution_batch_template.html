@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doc-Merge: Resolution</title>
+<style>
+  /* ── Reset & Base ───────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #fafaf9;
+    --surface:   #ffffff;
+    --border:    #e7e5e4;
+    --text:      #1c1917;
+    --text-sub:  #78716c;
+    --accent:    #4f46e5;
+
+    --meta:       #7c3aed;
+    --struct:     #2563eb;
+    --argument:   #d97706;
+    --expression: #6b7280;
+
+    --doc-a:      #3b82f6;
+    --doc-a-bg:   #eff6ff;
+    --doc-a-bdr:  #bfdbfe;
+    --doc-b:      #10b981;
+    --doc-b-bg:   #ecfdf5;
+    --doc-b-bdr:  #a7f3d0;
+    --doc-c:      #f59e0b;
+    --doc-c-bg:   #fffbeb;
+    --doc-c-bdr:  #fde68a;
+
+    --resolved:   #16a34a;
+    --deferred:   #9ca3af;
+
+    --radius:     8px;
+    --shadow-sm:  0 1px 2px rgba(0,0,0,.05);
+    --shadow:     0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  /* ── Progress Bar ───────────────────────────────────── */
+  .progress-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+  }
+  .progress-header .batch-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .progress-header .progress-text {
+    font-size: .85rem;
+    color: var(--text-sub);
+  }
+  .progress-bar-track {
+    height: 8px;
+    background: #e7e5e4;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #818cf8);
+    border-radius: 4px;
+    transition: width .4s ease;
+    /* Set width dynamically: style="width: 40%" */
+  }
+  .progress-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: .5rem;
+    font-size: .82rem;
+    color: var(--text-sub);
+  }
+
+  /* ── Decision Card ──────────────────────────────────── */
+  .decision-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .decision-card.resolved {
+    border-color: var(--resolved);
+    opacity: .7;
+  }
+  .decision-card.deferred {
+    border-color: var(--deferred);
+    opacity: .6;
+  }
+
+  /* Card header */
+  .decision-header {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .75rem 1rem;
+    background: #fafaf9;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .diff-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .level-badge {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: .15rem .45rem;
+    border-radius: 4px;
+    color: white;
+  }
+  .level-badge.meta       { background: var(--meta); }
+  .level-badge.structural { background: var(--struct); }
+  .level-badge.argument   { background: var(--argument); }
+  .level-badge.expression { background: var(--expression); }
+  .diff-subtype {
+    font-size: .65rem;
+    font-weight: 600;
+    padding: .1rem .35rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .diff-subtype.complementary { background: #dcfce7; color: #166534; }
+  .diff-subtype.alternative   { background: #fef9c3; color: #854d0e; }
+  .diff-subtype.contradictory { background: #fee2e2; color: #991b1b; }
+  .decision-header .section-name {
+    font-size: .88rem;
+    color: var(--text-sub);
+  }
+  .decision-header .card-index {
+    margin-left: auto;
+    font-size: .8rem;
+    color: var(--text-sub);
+  }
+
+  /* Card body: side-by-side comparison */
+  .decision-body { padding: 1rem; }
+
+  .doc-comparison {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: .75rem;
+    margin-bottom: .75rem;
+  }
+  .doc-panel {
+    border-left: 3px solid;
+    padding: .6rem .8rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: .88rem;
+  }
+  .doc-panel.doc-a { border-color: var(--doc-a); background: var(--doc-a-bg); }
+  .doc-panel.doc-b { border-color: var(--doc-b); background: var(--doc-b-bg); }
+  .doc-panel.doc-c { border-color: var(--doc-c); background: var(--doc-c-bg); }
+  .doc-panel .doc-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin-bottom: .2rem;
+  }
+  .doc-panel.doc-a .doc-label { color: var(--doc-a); }
+  .doc-panel.doc-b .doc-label { color: var(--doc-b); }
+  .doc-panel.doc-c .doc-label { color: var(--doc-c); }
+
+  /* Inline diff highlights within doc panels */
+  .doc-panel mark.divergent {
+    background: rgba(250, 204, 21, .3);
+    padding: .05rem .15rem;
+    border-radius: 2px;
+  }
+
+  /* Stakes & dependency info */
+  .stakes-info {
+    font-size: .84rem;
+    color: var(--text-sub);
+    padding: .5rem .75rem;
+    background: #fafaf9;
+    border-radius: var(--radius);
+    margin-bottom: .75rem;
+  }
+  .stakes-info strong { color: var(--text); }
+
+  /* Recommendation callout */
+  .recommendation {
+    font-size: .85rem;
+    padding: .5rem .75rem;
+    background: #f5f3ff;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: .75rem;
+    color: #4338ca;
+  }
+
+  /* Resolution status badge */
+  .resolution-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .25rem .6rem;
+    border-radius: 4px;
+    margin-top: .5rem;
+  }
+  .resolution-badge.accepted-a { background: var(--doc-a-bg); color: var(--doc-a); border: 1px solid var(--doc-a-bdr); }
+  .resolution-badge.accepted-b { background: var(--doc-b-bg); color: var(--doc-b); border: 1px solid var(--doc-b-bdr); }
+  .resolution-badge.accepted-c { background: var(--doc-c-bg); color: var(--doc-c); border: 1px solid var(--doc-c-bdr); }
+  .resolution-badge.merged    { background: #f5f3ff; color: var(--accent); border: 1px solid #c7d2fe; }
+  .resolution-badge.rewritten { background: #fdf4ff; color: #a21caf; border: 1px solid #f0abfc; }
+  .resolution-badge.deferred  { background: #f9fafb; color: #6b7280; border: 1px solid #d1d5db; }
+
+  /* ── Decision Log (end of batch) ────────────────────── */
+  .batch-log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-top: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .batch-log h3 { font-size: 1rem; margin-bottom: .75rem; }
+  .log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+  }
+  .log-table th {
+    text-align: left;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    padding: .4rem .5rem;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-sub);
+  }
+  .log-table td {
+    padding: .4rem .5rem;
+    border-bottom: 1px solid #f0efed;
+  }
+  .log-table tr:last-child td { border-bottom: none; }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 600px) {
+    body { padding: 1rem .5rem; }
+    .doc-comparison { grid-template-columns: 1fr; }
+    .decision-header { font-size: .85rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TEMPLATE INSTRUCTIONS (for Claude):
+
+     This template is the HTML scaffold for Phase 2 resolution batches.
+     Replace all {{PLACEHOLDER}} values with actual content.
+
+     For each batch:
+     1. Update the progress section
+     2. Create one .decision-card per difference in the batch
+     3. After user resolves, mark cards as .resolved and add
+        .resolution-badge, then update the batch log
+
+     When presenting a new batch, generate a fresh instance of this
+     template with updated progress and new decision cards. Previously
+     resolved batches can be summarised in the batch log.
+     ============================================================ -->
+
+<!-- ── Progress ───────────────────────────────────────── -->
+<div class="progress-section">
+  <div class="progress-header">
+    <span class="batch-label">Batch {{BATCH_NUM}} of {{TOTAL_BATCHES}}</span>
+    <span class="progress-text">{{RESOLVED_COUNT}} / {{TOTAL_DIFFS}} resolved</span>
+  </div>
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" style="width: {{PROGRESS_PERCENT}}%"></div>
+  </div>
+  <div class="progress-stats">
+    <span>Resolved: {{RESOLVED_COUNT}}</span>
+    <span>Remaining: {{REMAINING_COUNT}}</span>
+    <span>Deferred: {{DEFERRED_COUNT}}</span>
+  </div>
+</div>
+
+<!-- ── Decision Cards ─────────────────────────────────── -->
+
+<!-- Repeat this card for each difference in the current batch -->
+<div class="decision-card">
+  <div class="decision-header">
+    <span class="diff-id">{{DIFF_ID}}</span>
+    <span class="level-badge {{LEVEL_CLASS}}">{{LEVEL_NAME}}</span>
+    <!-- Optional: <span class="diff-subtype alternative">Alternative</span> -->
+    <span class="section-name">{{SECTION_NAME}}</span>
+    <span class="card-index">{{CARD_NUM}} of {{BATCH_SIZE}}</span>
+  </div>
+
+  <div class="decision-body">
+    <!-- Side-by-side document comparison -->
+    <div class="doc-comparison">
+      <div class="doc-panel doc-a">
+        <div class="doc-label">Doc A</div>
+        <p>{{DOC_A_CONTENT}}</p>
+        <!-- Use <mark class="divergent">...</mark> to highlight
+             the specific words/phrases that differ -->
+      </div>
+      <div class="doc-panel doc-b">
+        <div class="doc-label">Doc B</div>
+        <p>{{DOC_B_CONTENT}}</p>
+      </div>
+      <!-- Add .doc-panel.doc-c if comparing 3+ documents -->
+    </div>
+
+    <!-- Stakes / dependency context -->
+    <div class="stakes-info">
+      <strong>Stakes:</strong> {{STAKES_DESCRIPTION}}<br>
+      <!-- Example: "This choice constrains D-3-02 and D-3-07 downstream." -->
+      <!-- Example: "Low stakes — independent of other decisions." -->
+    </div>
+
+    <!-- Optional recommendation (include only when there is clear basis) -->
+    <!--
+    <div class="recommendation">
+      💡 {{RECOMMENDATION_TEXT}}
+    </div>
+    -->
+
+    <!-- After resolution, add the badge here: -->
+    <!--
+    <div class="resolution-badge accepted-a">✓ Accepted Doc A</div>
+    <div class="resolution-badge merged">⊕ Merged A+B</div>
+    <div class="resolution-badge rewritten">✎ Rewritten</div>
+    <div class="resolution-badge deferred">⏸ Deferred</div>
+    -->
+  </div>
+</div>
+
+<!-- ── Batch Decision Log ─────────────────────────────── -->
+<!-- Show this after the batch is fully resolved -->
+<!--
+<div class="batch-log">
+  <h3>Batch {{BATCH_NUM}} — Decision Log</h3>
+  <table class="log-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Level</th>
+        <th>Section</th>
+        <th>Decision</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{DIFF_ID}}</td>
+        <td>{{LEVEL_NAME}}</td>
+        <td>{{SECTION_NAME}}</td>
+        <td>{{DECISION}}</td>
+        <td>{{NOTES}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+-->
+
+</body>
+</html>

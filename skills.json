@@ -1,0 +1,170 @@
+{
+  "schema_version": "1.0",
+  "name": "skills-that-work",
+  "repository": "https://github.com/zkbkb/skills-that-work",
+  "description": "A curated, source-tracked bundle of installable Agent Skills.",
+  "skills": [
+    {
+      "name": "context-handoff",
+      "path": "skills/thinkbench-skills/context-handoff",
+      "skill_file": "skills/thinkbench-skills/context-handoff/SKILL.md",
+      "source_id": "thinkbench-skills",
+      "description": "Generate structured context handoff documents that capture the essential state of a conversation for seamless continuation in a new session. Use this skill when the user wants to carry over context from the current conv…",
+      "categories": [
+        "conversation",
+        "workflow",
+        "productivity"
+      ],
+      "tags": [
+        "context",
+        "handoff",
+        "continuation",
+        "session"
+      ],
+      "upstream": {
+        "repository": "https://github.com/zkbkb/thinkbench-skills",
+        "path": "skills/context-handoff",
+        "commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447"
+      },
+      "import_urls": {
+        "github": "https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/context-handoff",
+        "manus": "https://manus.im/app#settings/skills/import?githubUrl=https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/context-handoff"
+      }
+    },
+    {
+      "name": "doc-diff",
+      "path": "skills/thinkbench-skills/doc-diff",
+      "skill_file": "skills/thinkbench-skills/doc-diff/SKILL.md",
+      "source_id": "thinkbench-skills",
+      "description": "Generate Obsidian-compatible Markdown tracked-changes documents that show the differences between two versions of the same document. Use this skill whenever the user provides two versions of a file and asks to compare,…",
+      "categories": [
+        "documents",
+        "comparison",
+        "review"
+      ],
+      "tags": [
+        "diff",
+        "documents",
+        "comparison",
+        "review"
+      ],
+      "upstream": {
+        "repository": "https://github.com/zkbkb/thinkbench-skills",
+        "path": "skills/doc-diff",
+        "commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447"
+      },
+      "import_urls": {
+        "github": "https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/doc-diff",
+        "manus": "https://manus.im/app#settings/skills/import?githubUrl=https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/doc-diff"
+      }
+    },
+    {
+      "name": "doc-merge",
+      "path": "skills/thinkbench-skills/doc-merge",
+      "skill_file": "skills/thinkbench-skills/doc-merge/SKILL.md",
+      "source_id": "thinkbench-skills",
+      "description": "Multi-document semantic comparison, difference diagnosis, and interactive merge resolution. Use when the user uploads or references multiple documents on the same topic and wants to compare, contrast, reconcile, or merg…",
+      "categories": [
+        "documents",
+        "merge",
+        "review"
+      ],
+      "tags": [
+        "merge",
+        "documents",
+        "alignment",
+        "resolution"
+      ],
+      "upstream": {
+        "repository": "https://github.com/zkbkb/thinkbench-skills",
+        "path": "skills/doc-merge",
+        "commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447"
+      },
+      "import_urls": {
+        "github": "https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/doc-merge",
+        "manus": "https://manus.im/app#settings/skills/import?githubUrl=https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/doc-merge"
+      }
+    },
+    {
+      "name": "qi-gua",
+      "path": "skills/thinkbench-skills/qi-gua",
+      "skill_file": "skills/thinkbench-skills/qi-gua/SKILL.md",
+      "source_id": "thinkbench-skills",
+      "description": "基于梅花易数与六爻纳甲的通用起卦占卜技能。当用户希望通过易学方法进行占卜分析时 触发此技能。触发短语包括但不限于：\"帮我起一卦\"、\"帮我算一卦\"、\"我想占卜一下\"、 \"起卦看看\"、\"帮我卜一卦\"、\"梅花易数占卜\"、\"六爻占卜\"、\"qi gua\"、\"divination\"。 适用于任何占问主题——事业、感情、决策、出行、健康、财运、人际、时机判断等， 不限于特定场景。当用户的意图是通过易学卦象获取分析和指引时，均应触发此技能。",
+      "categories": [
+        "divination",
+        "decision-support",
+        "cultural-methods"
+      ],
+      "tags": [
+        "qi-gua",
+        "meihua-yishu",
+        "liuyao",
+        "divination"
+      ],
+      "upstream": {
+        "repository": "https://github.com/zkbkb/thinkbench-skills",
+        "path": "skills/qi-gua",
+        "commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447"
+      },
+      "import_urls": {
+        "github": "https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/qi-gua",
+        "manus": "https://manus.im/app#settings/skills/import?githubUrl=https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/qi-gua"
+      }
+    },
+    {
+      "name": "sutong-tutorial",
+      "path": "skills/thinkbench-skills/sutong-tutorial",
+      "skill_file": "skills/thinkbench-skills/sutong-tutorial/SKILL.md",
+      "source_id": "thinkbench-skills",
+      "description": "Generate high-density knowledge speed-through tutorials (高密度知识速通教程) that help readers achieve deep understanding with minimal cognitive load. Use this skill when the user requests to \"speed through\" (速通) a topic or asks…",
+      "categories": [
+        "learning",
+        "education",
+        "writing"
+      ],
+      "tags": [
+        "tutorial",
+        "speed-through",
+        "learning",
+        "first-principles"
+      ],
+      "upstream": {
+        "repository": "https://github.com/zkbkb/thinkbench-skills",
+        "path": "skills/sutong-tutorial",
+        "commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447"
+      },
+      "import_urls": {
+        "github": "https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/sutong-tutorial",
+        "manus": "https://manus.im/app#settings/skills/import?githubUrl=https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/sutong-tutorial"
+      }
+    },
+    {
+      "name": "transcript",
+      "path": "skills/thinkbench-skills/transcript",
+      "skill_file": "skills/thinkbench-skills/transcript/SKILL.md",
+      "source_id": "thinkbench-skills",
+      "description": "Export the current conversation as a structured transcript file preserving all user inputs and AI responses in chronological order. Use this skill when the user wants to save, export, or download the current conversatio…",
+      "categories": [
+        "conversation",
+        "export",
+        "documentation"
+      ],
+      "tags": [
+        "transcript",
+        "archive",
+        "conversation",
+        "markdown"
+      ],
+      "upstream": {
+        "repository": "https://github.com/zkbkb/thinkbench-skills",
+        "path": "skills/transcript",
+        "commit": "7c85489e7b60d1abdecfdc0ae920d05a27896447"
+      },
+      "import_urls": {
+        "github": "https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/transcript",
+        "manus": "https://manus.im/app#settings/skills/import?githubUrl=https://github.com/zkbkb/skills-that-work/tree/main/skills/thinkbench-skills/transcript"
+      }
+    }
+  ]
+}

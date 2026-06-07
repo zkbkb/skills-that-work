@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doc-Merge: Diagnostic Report</title>
+<style>
+  /* ── Reset & Base ───────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #fafaf9;
+    --surface:   #ffffff;
+    --border:    #e7e5e4;
+    --text:      #1c1917;
+    --text-sub:  #78716c;
+    --accent:    #4f46e5;
+
+    /* Level colours */
+    --meta:       #7c3aed;
+    --meta-bg:    #f5f3ff;
+    --struct:     #2563eb;
+    --struct-bg:  #eff6ff;
+    --argument:   #d97706;
+    --argument-bg:#fffbeb;
+    --expression: #6b7280;
+    --expr-bg:    #f9fafb;
+
+    /* Document source colours */
+    --doc-a:      #3b82f6;
+    --doc-a-bg:   #eff6ff;
+    --doc-a-bdr:  #bfdbfe;
+    --doc-b:      #10b981;
+    --doc-b-bg:   #ecfdf5;
+    --doc-b-bdr:  #a7f3d0;
+    --doc-c:      #f59e0b;
+    --doc-c-bg:   #fffbeb;
+    --doc-c-bdr:  #fde68a;
+
+    --radius:     8px;
+    --shadow-sm:  0 1px 2px rgba(0,0,0,.05);
+    --shadow:     0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .report-header {
+    text-align: center;
+    padding: 2rem 0 1.5rem;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .report-header h1 { font-size: 1.75rem; margin-bottom: .5rem; }
+  .report-header .subtitle { color: var(--text-sub); font-size: .95rem; }
+
+  /* ── Stats Bar ──────────────────────────────────────── */
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1.5rem 0 2rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: .75rem 1.25rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    min-width: 120px;
+  }
+  .stat-card .number {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-card .label {
+    font-size: .8rem;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  /* ── Section ────────────────────────────────────────── */
+  .section { margin-bottom: 2.5rem; }
+  .section > h2 {
+    font-size: 1.2rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+
+  /* ── Alignment Table ────────────────────────────────── */
+  .alignment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .9rem;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .alignment-table th {
+    background: #f5f5f4;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    padding: .6rem .75rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  .alignment-table td {
+    padding: .55rem .75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .alignment-table tr:last-child td { border-bottom: none; }
+  .alignment-table .tag-unique {
+    background: #fef3c7; color: #92400e;
+    font-size: .75rem; padding: .1rem .4rem;
+    border-radius: 3px; font-weight: 500;
+  }
+  .alignment-table .tag-absent {
+    background: #fee2e2; color: #991b1b;
+    font-size: .75rem; padding: .1rem .4rem;
+    border-radius: 3px; font-weight: 500;
+  }
+  .alignment-table .tag-embedded {
+    background: #e0e7ff; color: #3730a3;
+    font-size: .75rem; padding: .1rem .4rem;
+    border-radius: 3px; font-weight: 500;
+  }
+  .confidence-high { color: #16a34a; }
+  .confidence-med  { color: #d97706; }
+  .confidence-low  { color: #dc2626; }
+
+  /* ── Level Group (collapsible) ──────────────────────── */
+  .level-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .level-group-header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    background: #fafaf9;
+    border-bottom: 1px solid transparent;
+    transition: background .15s;
+  }
+  .level-group-header:hover { background: #f5f5f4; }
+  .level-group.open .level-group-header { border-bottom-color: var(--border); }
+  .level-group-header .chevron {
+    font-size: .75rem;
+    transition: transform .2s;
+    color: var(--text-sub);
+  }
+  .level-group.open .level-group-header .chevron { transform: rotate(90deg); }
+  .level-badge {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: .2rem .5rem;
+    border-radius: 4px;
+    color: white;
+  }
+  .level-badge.meta       { background: var(--meta); }
+  .level-badge.structural { background: var(--struct); }
+  .level-badge.argument   { background: var(--argument); }
+  .level-badge.expression { background: var(--expression); }
+  .level-group-header .title { font-weight: 600; font-size: .95rem; }
+  .level-group-header .count { color: var(--text-sub); font-size: .85rem; }
+  .level-group-body {
+    display: none;
+    padding: .75rem 1rem;
+  }
+  .level-group.open .level-group-body { display: block; }
+
+  /* ── Difference Entry ───────────────────────────────── */
+  .diff-entry {
+    padding: .75rem 0;
+    border-bottom: 1px solid #f0efed;
+  }
+  .diff-entry:last-child { border-bottom: none; }
+  .diff-entry-header {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .5rem;
+    flex-wrap: wrap;
+  }
+  .diff-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .diff-section {
+    font-size: .85rem;
+    color: var(--text-sub);
+  }
+  .diff-subtype {
+    font-size: .7rem;
+    font-weight: 600;
+    padding: .1rem .4rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .diff-subtype.complementary { background: #dcfce7; color: #166534; }
+  .diff-subtype.alternative   { background: #fef9c3; color: #854d0e; }
+  .diff-subtype.contradictory { background: #fee2e2; color: #991b1b; }
+
+  /* ── Document Version Panels ────────────────────────── */
+  .doc-versions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: .75rem;
+    margin-top: .5rem;
+  }
+  .doc-panel {
+    border-left: 3px solid;
+    padding: .6rem .8rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: .88rem;
+  }
+  .doc-panel.doc-a { border-color: var(--doc-a); background: var(--doc-a-bg); }
+  .doc-panel.doc-b { border-color: var(--doc-b); background: var(--doc-b-bg); }
+  .doc-panel.doc-c { border-color: var(--doc-c); background: var(--doc-c-bg); }
+  .doc-panel .doc-label {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin-bottom: .25rem;
+  }
+  .doc-panel.doc-a .doc-label { color: var(--doc-a); }
+  .doc-panel.doc-b .doc-label { color: var(--doc-b); }
+  .doc-panel.doc-c .doc-label { color: var(--doc-c); }
+
+  /* ── Dependency Info ────────────────────────────────── */
+  .diff-meta-info {
+    margin-top: .5rem;
+    font-size: .82rem;
+    color: var(--text-sub);
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .diff-meta-info .dep-label { font-weight: 600; }
+
+  /* ── Dependency Summary ─────────────────────────────── */
+  .dep-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    font-size: .9rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .dep-summary p { margin-bottom: .5rem; }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 600px) {
+    body { padding: 1rem .5rem; }
+    .stats-bar { flex-direction: column; align-items: stretch; }
+    .doc-versions { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TEMPLATE INSTRUCTIONS (for Claude):
+
+     This template is the HTML scaffold for Phase 1 diagnostic reports.
+     Replace all {{PLACEHOLDER}} values with actual content.
+     Duplicate or remove repeating elements (.diff-entry, .doc-panel,
+     table rows, .level-group) as needed.
+
+     Sections:
+     1. Header + Stats Bar
+     2. Alignment Map (table)
+     3. Difference Inventory (collapsible level groups)
+     4. Dependency Summary
+     5. JavaScript (toggle logic)
+     ============================================================ -->
+
+<div class="report-header">
+  <h1>Document Comparison Report</h1>
+  <p class="subtitle">{{DOCUMENT_NAMES}} — Generated {{DATE}}</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="number">{{NUM_DOCS}}</div>
+    <div class="label">Documents</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">{{TOTAL_DIFFS}}</div>
+    <div class="label">Differences</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">{{DECISIONS_NEEDED}}</div>
+    <div class="label">Decisions Needed</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">{{INDEPENDENT_COUNT}}</div>
+    <div class="label">Batchable (Round 1)</div>
+  </div>
+</div>
+
+<!-- ── Alignment Map ──────────────────────────────────── -->
+<div class="section">
+  <h2>Structural Alignment</h2>
+  <table class="alignment-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Topic</th>
+        <th>Doc A</th>
+        <th>Doc B</th>
+        <!-- {{EXTRA_DOC_HEADERS}} — add <th>Doc C</th> etc. if needed -->
+        <th>Confidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Repeat this row for each aligned topic -->
+      <tr>
+        <td>{{ROW_NUM}}</td>
+        <td>{{TOPIC_NAME}}</td>
+        <td>{{DOC_A_SECTION}}</td>
+        <!-- Use tags: <span class="tag-absent">ABSENT</span>
+                       <span class="tag-unique">UNIQUE</span>
+                       <span class="tag-embedded">EMBEDDED §N</span> -->
+        <td>{{DOC_B_SECTION}}</td>
+        <td><span class="confidence-high">High</span></td>
+        <!-- Use: confidence-high / confidence-med / confidence-low -->
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── Difference Inventory ───────────────────────────── -->
+<div class="section">
+  <h2>Difference Inventory</h2>
+
+  <!-- Meta-Level Group (open by default) -->
+  <div class="level-group open" data-level="meta">
+    <div class="level-group-header" onclick="toggleGroup(this)">
+      <span class="chevron">▶</span>
+      <span class="level-badge meta">Meta</span>
+      <span class="title">Meta-Level Differences</span>
+      <span class="count">({{META_COUNT}})</span>
+    </div>
+    <div class="level-group-body">
+
+      <!-- Repeat .diff-entry for each difference at this level -->
+      <div class="diff-entry">
+        <div class="diff-entry-header">
+          <span class="diff-id">{{DIFF_ID}}</span>
+          <span class="diff-section">{{SECTION_NAME}}</span>
+        </div>
+        <div class="doc-versions">
+          <div class="doc-panel doc-a">
+            <div class="doc-label">Doc A</div>
+            <p>{{DOC_A_CONTENT}}</p>
+          </div>
+          <div class="doc-panel doc-b">
+            <div class="doc-label">Doc B</div>
+            <p>{{DOC_B_CONTENT}}</p>
+          </div>
+          <!-- Add .doc-panel.doc-c if needed -->
+        </div>
+        <div class="diff-meta-info">
+          <span><span class="dep-label">Dependencies:</span> {{DOWNSTREAM_IDS}}</span>
+          <span><span class="dep-label">Impact:</span> {{IMPACT_NOTE}}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Structural Group (collapsed by default) -->
+  <div class="level-group" data-level="structural">
+    <div class="level-group-header" onclick="toggleGroup(this)">
+      <span class="chevron">▶</span>
+      <span class="level-badge structural">Structural</span>
+      <span class="title">Structural Differences</span>
+      <span class="count">({{STRUCT_COUNT}})</span>
+    </div>
+    <div class="level-group-body">
+      <!-- .diff-entry elements here -->
+    </div>
+  </div>
+
+  <!-- Argument Group (collapsed by default) -->
+  <div class="level-group" data-level="argument">
+    <div class="level-group-header" onclick="toggleGroup(this)">
+      <span class="chevron">▶</span>
+      <span class="level-badge argument">Argument</span>
+      <span class="title">Argument-Level Differences</span>
+      <span class="count">({{ARG_COUNT}})</span>
+    </div>
+    <div class="level-group-body">
+      <!-- .diff-entry elements here -->
+      <!-- For argument level, add subtype badge: -->
+      <!--
+      <div class="diff-entry-header">
+        <span class="diff-id">D-3-01</span>
+        <span class="diff-subtype alternative">Alternative</span>
+        <span class="diff-section">Core Analysis</span>
+      </div>
+      -->
+    </div>
+  </div>
+
+  <!-- Expression Group (collapsed by default) -->
+  <div class="level-group" data-level="expression">
+    <div class="level-group-header" onclick="toggleGroup(this)">
+      <span class="chevron">▶</span>
+      <span class="level-badge expression">Expression</span>
+      <span class="title">Expression-Level Differences</span>
+      <span class="count">({{EXPR_COUNT}})</span>
+    </div>
+    <div class="level-group-body">
+      <!-- .diff-entry elements here -->
+    </div>
+  </div>
+</div>
+
+<!-- ── Dependency & Decision Summary ──────────────────── -->
+<div class="section">
+  <h2>Resolution Overview</h2>
+  <div class="dep-summary">
+    <p><strong>Total decisions:</strong> {{DECISIONS_NEEDED}}</p>
+    <p><strong>Resolution batches:</strong> {{NUM_BATCHES}} (estimated)</p>
+    <p><strong>Batch 1 contains:</strong> {{BATCH1_DESCRIPTION}}</p>
+    <p>{{DEPENDENCY_NARRATIVE}}</p>
+  </div>
+</div>
+
+<script>
+  function toggleGroup(header) {
+    const group = header.parentElement;
+    group.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
